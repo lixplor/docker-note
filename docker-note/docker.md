@@ -6,8 +6,8 @@
 * image: 镜像. 是轻量的, 独立的, 可执行的包, 它包含了运行软件的一切内容, 包括代码, 运行环境, 库, 环境变量, 以及配置文件
 * container: 容器. 是镜像的一个运行时实例. 也就是镜像被执行后在内存中的体现形式. container默认情况下是完全独立于主机环境的, 仅在进行某些配置的情况下才可以访问主机文件和端口. 容器在本地主机内核中运行应用. 容器比虚拟器拥有更好的效率. 容器可以获取本地访问, 每个容器都运行在单独的进程中, 不会消耗更多的内存.
 * Dockerfile: 将程序代码, 运行环境, 依赖等打包为可移植的一个镜像文件
-* registry: 注册地. 是仓库的集合
-* repository: 仓库. 是镜像的集合. 与Github仓库类似, 但不同的是代码是已被构建过的. 一个账户可以创建多个仓库
+* registry: 注册服务器. 是仓库的集合, 会有多个仓库
+* repository: 仓库. 是镜像的集合. 与Github仓库类似, 但不同的是代码是已被构建过的. 一个账户可以创建多个仓库, 一个仓库中可以有多个版本的镜像
 * stack: 栈. 定义服务之间如何交互
 * service: 服务. 运行中的每个应用都可以看做一个服务
 
@@ -24,6 +24,9 @@
     - [CentOS](https://docs.docker.com/engine/installation/linux/docker-ce/centos/)
     - [Debian](https://docs.docker.com/engine/installation/linux/docker-ce/debian/)
     - [Ubuntu](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+* Docker安装后有2个程序:
+    - 服务端: 一个服务进程, 管理所有容器
+    - 客户端: 控制器, 控制docker的服务端进程
 
 
 ## 使用Dockerfile定义一个容器
@@ -115,8 +118,14 @@ if __name__ == "__main__":
 ## Docker常用命令
 
 ```bash
-# 查看docker版本
+# 查看docker所有命令
+docker
+
+# 查看docker版本(简化版)
 docker --version
+
+# 查看docker版本(服务端版本和客户端版本)
+docker version
 
 # 构建镜像
 docker build -t 镜像名 目录
@@ -126,12 +135,6 @@ docker images
 
 # 查看所有镜像
 docker images -a
-
-# 前台运行镜像(需要Ctrl + c停止)
-docker run -p 本机端口:容器端口 镜像名
-
-# 后台运行镜像
-docker run -d -p 本机端口:容器端口 镜像名
 
 # 查看正在运行的容器
 docker ps
@@ -160,8 +163,30 @@ docker tag <image> username/repository:tag
 # 上传已标记的镜像到仓库
 docker push username/repository:tag
 
+# 搜索镜像
+docker search 镜像名
+
+# 下载镜像(一些官方认证的不需要使用用户名, 不指定版本号则下载最新的latest)
+docker pull 用户名/镜像名[:版本号]
+docker pull 镜像名[:版本号]
+
+# 查看镜像的详细信息
+docker inspect 用户名/镜像名
+
+# 前台运行镜像(需要Ctrl + c停止)
+docker run -p 本机端口:容器端口 镜像名
+
+# 后台运行镜像
+docker run -d -p 本机端口:容器端口 镜像名
+
 # 从registry中运行镜像
 docker run username/repository:tag
+
+# 运行镜像产生容器, 并在容器中运行命令
+docker run 镜像名 容器中执行的命令
+
+# 保存对容器的修改(需要先停止容器)
+docker commit 容器ID 用户名/新镜像名
 
 # 列出当前Docker主机上运行的所有应用
 docker stack ls
@@ -177,6 +202,12 @@ docker stack ps <appname>
 
 # 删除应用
 docker stack rm <appname>
+
+# 保存镜像为tar文件
+docker save -o 文件名 镜像名[:版本号]
+
+# 从tar文件加载镜像
+docker load -i 文件名
 ```
 
 
@@ -187,11 +218,13 @@ docker stack rm <appname>
 ## 常见问题
 
 #### 启动Docker提示`Job for docker.service failed because the control process exited with error code. See "systemctl status docker.service" and "journalctl -xe" for details.`
-有错误导致Docker退出. 执行`systemctl status docker.service -l`查看错误详情. 注意加上`-l`可以看到详细信息, 比如Linux内核太低导致无法启动
+
+* 原因: 有错误导致Docker退出.
+* 解决: 执行`systemctl status docker.service -l`查看错误详情. 注意加上`-l`可以看到详细信息, 比如Linux内核太低导致无法启动
 
 #### Linux内核过低, 如何升级
 
-```shell
+```bash
 # 查看内核信息
 uname -a
 
@@ -205,6 +238,11 @@ yum install kernel
 # 没有grub2的话安装一下
 yum install grub2
 ```
+
+#### 运行docker镜像提示: `standard_init_linux.go:187: exec user process caused "exec format error"`
+
+* 原因: 所运行的镜像在当前系统中不支持
+* 解决: 更换当前系统架构支持的镜像
 
 #### 如何删除id为none的的镜像
 
