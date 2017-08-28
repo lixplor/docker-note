@@ -10,6 +10,7 @@
 * repository: 仓库. 是镜像的集合. 与Github仓库类似, 但不同的是代码是已被构建过的. 一个账户可以创建多个仓库, 一个仓库中可以有多个版本的镜像
 * stack: 栈. 定义服务之间如何交互
 * service: 服务. 运行中的每个应用都可以看做一个服务
+* Automated builds: 自动构建. 让仓库跟踪某个网站(GitHub或BitBucket), 发现有新代码则自动构建镜像, 免去手动更新
 
 
 * Docker的3层:
@@ -114,6 +115,17 @@ if __name__ == "__main__":
 * `docker-compose.yml`文件: 定义Docker容器的行为
 
 
+## 运行容器发生的事情
+
+* 执行`docker run 镜像`会发生如下作用:
+    - 先检查镜像是否在本地存在, 如果不存在, 则从公有仓库下载
+    - 利用镜像创建一个容器, 并启动该容器
+    - 分配一个文件系统, 并在只读的镜像层外挂载一层可读写层
+    - 从宿主机配置的网桥接口中桥接一个虚拟接口到容器中
+    - 从地址池配置一个IP给容器
+    - 执行用户指定的程序
+    - 程序执行完毕后容器会被终止
+
 
 ## Docker常用命令
 
@@ -136,6 +148,24 @@ docker images
 # 查看所有镜像
 docker images -a
 
+# 前台运行镜像(需要Ctrl + c停止)
+docker run -p 本机端口:容器端口 镜像名
+
+# 后台运行镜像
+docker run -d -p 本机端口:容器端口 镜像名
+
+# 运行镜像, 并创建命令行, 且将输入接入
+docker run -ti 镜像名
+
+# 从registry中运行镜像
+docker run username/repository:tag
+
+# 运行镜像产生容器, 并在容器中运行命令
+docker run 镜像名 容器中执行的命令
+
+# 获取容器输出的信息
+docker logs 容器ID
+
 # 查看正在运行的容器
 docker ps
 
@@ -147,6 +177,12 @@ docker stop 容器ID
 
 # 强制停止某个容器
 docker kill 容器ID
+
+# 使用标准输入, 标准输出, 错误输出连接容器
+docker attach 容器ID
+
+# 在指定容器中执行命令
+docker exec 容器ID 命令
 
 # 删除容器
 docker rm 容器ID
@@ -173,18 +209,6 @@ docker pull 镜像名[:版本号]
 # 查看镜像的详细信息
 docker inspect 用户名/镜像名
 
-# 前台运行镜像(需要Ctrl + c停止)
-docker run -p 本机端口:容器端口 镜像名
-
-# 后台运行镜像
-docker run -d -p 本机端口:容器端口 镜像名
-
-# 从registry中运行镜像
-docker run username/repository:tag
-
-# 运行镜像产生容器, 并在容器中运行命令
-docker run 镜像名 容器中执行的命令
-
 # 保存对容器的修改(需要先停止容器)
 docker commit 容器ID 用户名/新镜像名
 
@@ -208,6 +232,12 @@ docker save -o 文件名 镜像名[:版本号]
 
 # 从tar文件加载镜像
 docker load -i 文件名
+
+# 将容器导出到tar文件
+docker export -o 文件名 容器ID
+
+# 从文件中导入容器
+docker import 文件名或URL
 ```
 
 
