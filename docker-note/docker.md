@@ -27,7 +27,7 @@
     - [Ubuntu](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 * 安装方式有2种:
     - 添加Docker官方Repository并安装docker-ce
-        - 注意: 可能会遇到能搜索到但不能安装的情况, 如果是这样, 可以使用第二种方式下载安装包安装
+        - 注意: 可能会遇到能搜索到但不能安装的情况, 可能是因为操作系统版本不兼容, Docker只能运行在64位系统上, 请检查当前操作系统是否为64位(i386, i686是32位, x86_64, amd64是64位)
     - 直接下载deb安装包
 * Docker安装后有2个程序:
     - 服务端: 一个服务进程, 管理所有容器
