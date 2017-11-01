@@ -25,6 +25,10 @@
     - [CentOS](https://docs.docker.com/engine/installation/linux/docker-ce/centos/)
     - [Debian](https://docs.docker.com/engine/installation/linux/docker-ce/debian/)
     - [Ubuntu](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+* 安装方式有2种:
+    - 添加Docker官方Repository并安装docker-ce
+        - 注意: 可能会遇到能搜索到但不能安装的情况, 如果是这样, 可以使用第二种方式下载安装包安装
+    - 直接下载deb安装包
 * Docker安装后有2个程序:
     - 服务端: 一个服务进程, 管理所有容器
     - 客户端: 控制器, 控制docker的服务端进程
